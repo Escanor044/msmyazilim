@@ -21,8 +21,8 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
     const pathname = usePathname()
 
-    // Mock auth state
-    const isLoggedIn = false
+
+
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -80,20 +80,12 @@ export function Header() {
 
                 {/* Actions */}
                 <div className="hidden md:flex items-center gap-4">
-                    {isLoggedIn ? (
-                        <Button variant="default" asChild>
-                            <Link href="/panel">Panel</Link>
-                        </Button>
-                    ) : (
-                        <>
-                            <Button variant="ghost" size="sm" asChild>
-                                <Link href="/giris">Giriş Yap</Link>
-                            </Button>
-                            <Button size="sm" asChild className="bg-primary hover:bg-primary/90">
-                                <Link href="/kayit">Kayıt Ol</Link>
-                            </Button>
-                        </>
-                    )}
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/giris">Giriş Yap</Link>
+                    </Button>
+                    <Button size="sm" asChild className="bg-primary hover:bg-primary/90">
+                        <Link href="/kayit">Kayıt Ol</Link>
+                    </Button>
                 </div>
 
                 {/* Mobile Toggle */}

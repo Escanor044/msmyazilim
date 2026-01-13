@@ -39,15 +39,8 @@ export default function ReferencesPage() {
                                     <h3 className="font-bold text-lg">{item.name}</h3>
                                     <span className="text-xs text-green-500 font-mono bg-green-500/10 px-2 py-1 rounded">+{item.online} Online</span>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-4">{item.type}</p>
 
-                                <div className="flex flex-wrap gap-2">
-                                    {item.tags.map(tag => (
-                                        <span key={tag} className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-white/5 text-muted-foreground border border-white/5">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
+                                <p className="text-sm text-muted-foreground">{item.type}</p>
                             </div>
                         </div>
                     ))}
