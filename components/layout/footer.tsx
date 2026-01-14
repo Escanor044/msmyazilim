@@ -35,10 +35,10 @@ export function Footer() {
                     <div>
                         <h4 className="font-semibold text-foreground mb-6">Kurumsal</h4>
                         <ul className="space-y-3 text-sm text-muted-foreground">
-                            <li><Link href="/gizlilik" className="hover:text-primary transition-colors">Gizlilik Politikası</Link></li>
-                            <li><Link href="/kvkk" className="hover:text-primary transition-colors">KVKK Aydınlatma</Link></li>
-                            <li><Link href="/satis-sozlesmesi" className="hover:text-primary transition-colors">Mesafeli Satış Sözleşmesi</Link></li>
-                            <li><Link href="/iade" className="hover:text-primary transition-colors">İade ve İptal Koşulları</Link></li>
+                            <li><Link href="/sozlesmeler/gizlilik" className="hover:text-primary transition-colors">Gizlilik Politikası</Link></li>
+                            <li><Link href="/sozlesmeler/kvkk" className="hover:text-primary transition-colors">KVKK Aydınlatma</Link></li>
+                            <li><Link href="/sozlesmeler/mesafeli-satis" className="hover:text-primary transition-colors">Mesafeli Satış Sözleşmesi</Link></li>
+                            <li><Link href="/sozlesmeler/iade-ve-iptal" className="hover:text-primary transition-colors">İade ve İptal Koşulları</Link></li>
                         </ul>
                     </div>
 

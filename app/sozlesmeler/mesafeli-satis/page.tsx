@@ -1,35 +1,62 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { LegalLayout } from "@/components/layout/legal-layout"
 
 export default function DistanceSalesAgreement() {
     return (
-        <main className="min-h-screen bg-background text-foreground">
-            <Header />
-            <div className="container-width py-32 space-y-8 max-w-4xl">
-                <h1 className="text-3xl font-bold">Mesafeli Satış Sözleşmesi</h1>
+        <LegalLayout
+            title="Mesafeli Satış Sözleşmesi"
+            description="Lütfen hizmet satın almadan önce bu sözleşmeyi dikkatlice okuyunuz."
+            lastUpdated="14 Ocak 2026"
+        >
+            <h3>1. Taraflar</h3>
+            <p>
+                <strong>SATICI:</strong> MSM Yazılım (Bundan böyle "SATICI" olarak anılacaktır).<br />
+                <strong>ALICI:</strong> Web sitesi üzerinden hizmet satın alan kişi veya kurum (Bundan böyle "ALICI" olarak anılacaktır).
+            </p>
 
-                <div className="prose prose-invert max-w-none space-y-4">
-                    <p className="text-sm text-muted-foreground">Son Güncelleme: 14.01.2024</p>
+            <h3>2. Konu</h3>
+            <p>
+                İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait web sitesi üzerinden elektronik ortamda siparişini yaptığı
+                aşağıda nitelikleri ve satış fiyatı belirtilen ürünün/hizmetin satışı ve teslimi ile ilgili olarak
+                6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince
+                tarafların hak ve yükümlülüklerinin saptanmasıdır.
+            </p>
 
-                    <h3 className="text-xl font-semibold">1. TARAFLAR</h3>
-                    <p>İşbu Sözleşme aşağıdaki taraflar arasında aşağıda belirtilen hüküm ve şartlar çerçevesinde imzalanmıştır.</p>
-                    <p><strong>ALICI:</strong> (Sözleşmede bundan sonra "ALICI" olarak anılacaktır)</p>
-                    <p><strong>SATICI:</strong> MSM Yazılım (Sözleşmede bundan sonra "SATICI" olarak anılacaktır)</p>
+            <h3>3. Sözleşme Konusu Ürün/Hizmet</h3>
+            <p>
+                Hizmetin türü, miktarı, marka/modeli, rengi ve tüm vergiler dahil satış bedeli web sitesindeki
+                ürün tanıtım sayfasında ve sipariş onay ekranında belirtildiği gibidir. Dijital ürünlerde teslimat,
+                elektronik ortamda gerçekleşir.
+            </p>
 
-                    <h3 className="text-xl font-semibold">2. KONU</h3>
-                    <p>İşbu sözleşmenin konusu, SATICI'nın, ALICI'ya satışını yaptığı, aşağıda nitelikleri ve satış fiyatı belirtilen ürünün satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
+            <h3>4. Genel Hükümler</h3>
+            <ul>
+                <li>
+                    <strong>4.1.</strong> ALICI, web sitesinde sözleşme konusu ürünün temel nitelikleri, satış fiyatı ve
+                    ödeme şekli ile teslimata ilişkin ön bilgileri okuyup bilgi sahibi olduğunu ve elektronik ortamda
+                    gerekli teyidi verdiğini beyan eder.
+                </li>
+                <li>
+                    <strong>4.2.</strong> Sözleşme konusu ürün/hizmet, siparişin SATICI tarafından onaylanmasından sonra
+                    ALICI'nın bildirdiği e-posta adresine veya kullanıcı hesabına tanımlanır.
+                </li>
+                <li>
+                    <strong>4.3.</strong> Dijital içerik ve yazılım ürünlerinde, ürünün tesliminden sonra ürünün iadesi
+                    veya iptali mümkün değildir (Cayma hakkı istisnaları kapsamında).
+                </li>
+            </ul>
 
-                    <h3 className="text-xl font-semibold">3. CAYMA HAKKI</h3>
-                    <p className="text-red-400">ÖNEMLİ: Niteliği itibarıyla iade edilemeyecek ürünler, tek kullanımlık ürünler, kopyalanabilir yazılım ve programlar, hızlı bozulan veya son kullanım tarihi geçen ürünler için cayma hakkı kullanılamaz. Server Files ve Lisans hizmetleri bu kapsama girmektedir.</p>
+            <h3>5. Cayma Hakkı</h3>
+            <p>
+                Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallar
+                (lisans, yazılım, kod vb.) için cayma hakkı bulunmamaktadır. ALICI, bu durumu bilerek satın alma
+                işlemini gerçekleştirdiğini kabul eder.
+            </p>
 
-                    <h3 className="text-xl font-semibold">4. GENEL HÜKÜMLER</h3>
-                    <ul className="list-disc pl-5 space-y-2">
-                        <li>ALICI, internet sitesinde sözleşme konusu ürünün temel nitelikleri, satış fiyatı ve ödeme şekli ile teslimata ilişkin ön bilgileri okuyup bilgi sahibi olduğunu ve elektronik ortamda gerekli teyidi verdiğini beyan eder.</li>
-                        <li>Dijital ürün teslimatları, ödeme onayını takiben en geç 24 saat içinde ALICI'nın bildirdiği e-posta adresine veya üyelik hesabına yapılır.</li>
-                    </ul>
-                </div>
-            </div>
-            <Footer />
-        </main>
+            <h3>6. Uyuşmazlık Çözümü</h3>
+            <p>
+                İşbu sözleşmeden doğabilecek ihtilaflarda, T.C. Ticaret Bakanlığınca ilan edilen değere kadar Tüketici
+                Hakem Heyetleri, bu değerin üzerindeki ihtilaflarda ise Tüketici Mahkemeleri yetkilidir.
+            </p>
+        </LegalLayout>
     )
 }

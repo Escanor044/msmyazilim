@@ -1,37 +1,61 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { LegalLayout } from "@/components/layout/legal-layout"
 
 export default function PrivacyPolicy() {
     return (
-        <main className="min-h-screen bg-background text-foreground">
-            <Header />
-            <div className="container-width py-32 space-y-8 max-w-4xl">
-                <h1 className="text-3xl font-bold">Gizlilik Politikası</h1>
+        <LegalLayout
+            title="Gizlilik Politikası"
+            description="Kişisel verilerinizin güvenliği ve gizliliği bizim için önemlidir."
+            lastUpdated="14 Ocak 2026"
+        >
+            <p>
+                MSM Yazılım olarak, kullanıcılarımızın kişisel verilerinin korunmasına büyük önem vermekteyiz.
+                Bu Gizlilik Politikası, sitemizi ziyaret ettiğinizde veya hizmetlerimizi kullandığınızda verilerinizin
+                nasıl toplandığını, işlendiğini ve korunduğunu açıklamaktadır.
+            </p>
 
-                <div className="prose prose-invert max-w-none space-y-4">
-                    <p>MSM Yazılım olarak kişisel verilerinizin güvenliği hususuna azami hassasiyet göstermekteyiz.</p>
+            <h3>1. Toplanan Veriler</h3>
+            <p>Hizmetlerimizi sunabilmek adına aşağıdaki verileri toplayabiliriz:</p>
+            <ul>
+                <li><strong>Kimlik Bilgileri:</strong> Ad, soyad.</li>
+                <li><strong>İletişim Bilgileri:</strong> E-posta adresi, telefon numarası.</li>
+                <li><strong>İşlem Güvenliği Bilgileri:</strong> IP adresi, port bilgileri, web sitesi giriş-çıkış bilgileri.</li>
+                <li><strong>Müşteri İşlem Bilgileri:</strong> Satın alınan ürün/hizmet detayları, talep ve şikayet bilgileri.</li>
+            </ul>
 
-                    <h3 className="text-xl font-semibold">1. Toplanan Veriler</h3>
-                    <p>Sitemizi ziyaret ettiğinizde veya hizmet satın aldığınızda şu veriler toplanabilir:</p>
-                    <ul className="list-disc pl-5">
-                        <li>Ad, Soyad, E-posta, Telefon Numarası</li>
-                        <li>IP Adresi ve Tarayıcı Bilgileri</li>
-                        <li>Satın alma geçmişi</li>
-                    </ul>
+            <h3>2. Verilerin Kullanım Amacı</h3>
+            <p>Toplanan kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:</p>
+            <ul>
+                <li>Hizmetlerin sunulması, faturalandırma ve satış sonrası süreçlerin yürütülmesi.</li>
+                <li>Müşteri destek hizmetlerinin sağlanması.</li>
+                <li>Yasal yükümlülüklerin yerine getirilmesi.</li>
+                <li>Hizmet kalitesinin artırılması ve kullanıcı deneyiminin iyileştirilmesi.</li>
+            </ul>
 
-                    <h3 className="text-xl font-semibold">2. Verilerin Kullanımı</h3>
-                    <p>Topladığımız veriler şu amaçlarla kullanılır:</p>
-                    <ul className="list-disc pl-5">
-                        <li>Hizmetlerin sağlanması ve faturalandırma</li>
-                        <li>Müşteri desteği sağlama</li>
-                        <li>Yasal yükümlülüklerin yerine getirilmesi</li>
-                    </ul>
+            <h3>3. Verilerin Paylaşımı</h3>
+            <p>
+                Kişisel verileriniz, yasal zorunluluklar saklı kalmak kaydıyla, üçüncü şahıslarla paylaşılmamaktadır.
+                Ancak, ödeme işlemleri için anlaşmalı ödeme kuruluşları ve yasal makamların talebi üzerine yetkili
+                mercilerle paylaşılabilir.
+            </p>
 
-                    <h3 className="text-xl font-semibold">3. Çerezler (Cookies)</h3>
-                    <p>Sitemiz deneyiminizi iyileştirmek için çerezler kullanmaktadır. Tarayıcı ayarlarınızdan çerezleri yönetebilirsiniz.</p>
-                </div>
-            </div>
-            <Footer />
-        </main>
+            <h3>4. Veri Güvenliği</h3>
+            <p>
+                Verileriniz, uluslararası standartlara uygun güvenlik önlemleri ile korunmaktadır.
+                Veri tabanlarımızda şifreleme yöntemleri kullanılmakta ve yetkisiz erişimlere karşı düzenli
+                güvenlik taramaları yapılmaktadır.
+            </p>
+
+            <h3>5. Çerezler (Cookies)</h3>
+            <p>
+                Sitemiz, kullanıcı deneyimini iyileştirmek ve site trafiğini analiz etmek için çerezler kullanmaktadır.
+                Tarayıcı ayarlarınızdan çerez tercihlerinizi dilediğiniz zaman değiştirebilirsiniz.
+            </p>
+
+            <h3>6. İletişim</h3>
+            <p>
+                Gizlilik politikamızla ilgili her türlü soru ve talebiniz için
+                <a href="/iletisim"> iletişim sayfamız</a> üzerinden bizimle irtibata geçebilirsiniz.
+            </p>
+        </LegalLayout>
     )
 }

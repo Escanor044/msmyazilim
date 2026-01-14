@@ -16,7 +16,7 @@ export function FinalCTA() {
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button size="lg" variant="secondary" className="w-full sm:w-auto font-bold" asChild>
-                                <Link href="/iletişim">Bize Ulaşın</Link>
+                                <Link href="/iletisim">Bize Ulaşın</Link>
                             </Button>
                             <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white" asChild>
                                 <Link href="/files">Paketleri İncele</Link>
