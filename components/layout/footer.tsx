@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShieldCheck, Mail, Phone, ExternalLink } from "lucide-react"
+import { ShieldCheck, Mail, Phone } from "lucide-react"
 
 export function Footer() {
     return (

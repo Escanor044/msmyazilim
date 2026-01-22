@@ -41,7 +41,7 @@ export function Testimonials() {
                                 ))}
                             </div>
                             <p className="text-muted-foreground mb-6 leading-relaxed">
-                                "{item.text}"
+                                &quot;{item.text}&quot;
                             </p>
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">

@@ -1,6 +1,16 @@
+import { Metadata } from "next"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { SystemsView } from "@/components/systems/systems-view"
+
+export const metadata: Metadata = {
+    title: "Sistem Çözümleri - Metin2 Sunucu Sistemleri",
+    description: "Sunucunuzu rakiplerinizden ayıracak modern, performanslı ve oyuncu dostu sistemler. PvP, PvM, Oyun Konforu, Etkinlik ve Yönetim sistemleri.",
+    openGraph: {
+        title: "Sistem Çözümleri - Metin2 Sunucu Sistemleri",
+        description: "Sunucunuzu rakiplerinizden ayıracak modern, performanslı ve oyuncu dostu sistemler.",
+    },
+}
 
 export default function SystemsPage() {
     return (

@@ -17,7 +17,7 @@ export default function NotFound() {
                 <div className="space-y-2">
                     <h1 className="text-4xl font-bold tracking-tight">Sayfa Bulunamadı</h1>
                     <p className="text-muted-foreground text-lg max-w-md mx-auto">
-                        Aradığınız sayfa silinmiş veya taşınmış olabilir. Lütfen URL'i kontrol edin.
+                        Aradığınız sayfa silinmiş veya taşınmış olabilir. Lütfen URL&apos;i kontrol edin.
                     </p>
                 </div>
 

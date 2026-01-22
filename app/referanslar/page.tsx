@@ -1,6 +1,5 @@
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
-import { ExternalLink } from "lucide-react"
 
 const references = Array.from({ length: 12 }).map((_, i) => ({
     id: i,

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, Monitor, Swords, Shield, Database, Settings, Crown } from "lucide-react"
+import { Search, Monitor, Swords, Shield, Database, Settings, Crown, Eye, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -63,18 +63,20 @@ export function SystemsView() {
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSystems.map((system) => (
-                    <Link
+                    <div
                         key={system.id}
-                        href={`/sistemler/${system.id}`}
                         className="group relative rounded-xl bg-card border hover:border-primary/50 transition-all duration-300 overflow-hidden flex flex-col h-full"
                     >
                         {/* Image Section */}
                         {system.image && (
-                            <div className="relative h-48 w-full overflow-hidden bg-black/20">
+                            <Link
+                                href={`/sistemler/${system.id}`}
+                                className="relative w-full aspect-video overflow-hidden bg-black/20 block"
+                            >
                                 <img
                                     src={system.image}
                                     alt={system.name}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-110"
                                 />
                                 <div className="absolute top-3 right-3 z-10">
                                     {system.included ? (
@@ -87,7 +89,7 @@ export function SystemsView() {
                                         </span>
                                     )}
                                 </div>
-                            </div>
+                            </Link>
                         )}
 
                         {/* Content */}
@@ -99,9 +101,35 @@ export function SystemsView() {
                                 <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{system.name}</h3>
                             </div>
 
-                            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{system.desc}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-4">{system.desc}</p>
+
+                            <div className="flex flex-col gap-2">
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    className="w-full bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 gap-2"
+                                >
+                                    <Link href={`/sistemler/${system.id}`}>
+                                        <Eye className="h-3.5 w-3.5" />
+                                        İncele
+                                    </Link>
+                                </Button>
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    className="w-full bg-secondary/50 hover:bg-secondary/70 text-secondary-foreground border border-white/10 gap-2"
+                                >
+                                    <Link 
+                                        href={`https://wa.me/905551404633?text=${encodeURIComponent(`Merhaba, ${system.name} hakkında bilgi almak istiyorum.`)}`}
+                                        target="_blank"
+                                    >
+                                        <Smartphone className="h-3.5 w-3.5" />
+                                        WhatsApp ile Bilgi Al
+                                    </Link>
+                                </Button>
+                            </div>
                         </div>
-                    </Link>
+                    </div>
                 ))}
             </div>
 

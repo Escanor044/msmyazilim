@@ -84,7 +84,7 @@ function CheckoutContent() {
                                 <div className="h-4 w-4 rounded-full border-4 border-primary bg-background" />
                             </div>
                             <p className="text-xs text-muted-foreground ml-9">
-                                "Ödemeye Git" butonuna tıkladığınızda PayTR güvenli ödeme sayfasına yönlendirileceksiniz.
+                                &quot;Ödemeye Git&quot; butonuna tıkladığınızda PayTR güvenli ödeme sayfasına yönlendirileceksiniz.
                             </p>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ function CheckoutContent() {
                                     <div className="flex gap-2 items-start">
                                         <input type="checkbox" className="mt-1" id="terms" />
                                         <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer select-none">
-                                            <span className="text-primary hover:underline">Mesafeli Satış Sözleşmesi</span>'ni okudum ve kabul ediyorum.
+                                            <span className="text-primary hover:underline">Mesafeli Satış Sözleşmesi</span>&apos;ni okudum ve kabul ediyorum.
                                         </label>
                                     </div>
                                     <Button className="w-full h-12 text-lg" asChild>

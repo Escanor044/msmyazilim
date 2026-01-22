@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Check, Shield, Zap, Star } from "lucide-react"
+import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const packages = [
