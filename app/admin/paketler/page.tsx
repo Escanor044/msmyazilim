@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { createPackage, updatePackage, deletePackage, updatePackageSortOrder } from "@/app/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -78,25 +79,25 @@ export default function PackagesAdminPage() {
 
         const featuresArray = featuresText.split('\n').filter(f => f.trim() !== '')
         const packageData = {
-            ...formData,
+            title: formData.title || "",
+            description: formData.description || null,
+            price: formData.price || "Teklif Alınız",
             features: featuresArray,
-            sort_order: formData.sort_order || packages.length
+            button_text: formData.button_text || "Paket Detayı",
+            link: formData.link || "/files",
+            recommended: formData.recommended || false,
+            glow_color: formData.glow_color || "rgba(59, 130, 246, 0.5)",
+            sort_order: formData.sort_order || packages.length,
+            active: formData.active !== undefined ? formData.active : true
         }
 
         try {
             if (formData.id) {
-                // Update
-                const { error } = await supabase
-                    .from('packages')
-                    .update(packageData)
-                    .eq('id', formData.id)
-                if (error) throw error
+                // Update - Server Action kullan
+                await updatePackage(formData.id, packageData)
             } else {
-                // Insert
-                const { error } = await supabase
-                    .from('packages')
-                    .insert([packageData])
-                if (error) throw error
+                // Insert - Server Action kullan
+                await createPackage(packageData)
             }
 
             setOpen(false)
@@ -131,17 +132,16 @@ export default function PackagesAdminPage() {
         if (!confirm("Bu paketi silmek istediğinize emin misiniz?")) return
 
         setLoading(true)
-        const { error } = await supabase
-            .from('packages')
-            .delete()
-            .eq('id', id)
-
-        if (error) {
-            setError("Silinirken hata oluştu.")
-        } else {
+        setError(null)
+        try {
+            // Server Action kullan
+            await deletePackage(id)
             fetchPackages()
+        } catch (err: any) {
+            setError(err.message || "Silinirken hata oluştu.")
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     const handleMove = async (id: number, direction: 'up' | 'down') => {
@@ -155,20 +155,14 @@ export default function PackagesAdminPage() {
         const target = packages[newIndex]
 
         try {
-            await supabase
-                .from('packages')
-                .update({ sort_order: target.sort_order })
-                .eq('id', current.id)
-
-            await supabase
-                .from('packages')
-                .update({ sort_order: current.sort_order })
-                .eq('id', target.id)
+            // Server Actions kullan
+            await updatePackageSortOrder(current.id, target.sort_order)
+            await updatePackageSortOrder(target.id, current.sort_order)
 
             fetchPackages()
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error moving package:', error)
-            setError("Sıralama değiştirilirken hata oluştu.")
+            setError(error.message || "Sıralama değiştirilirken hata oluştu.")
         }
     }
 

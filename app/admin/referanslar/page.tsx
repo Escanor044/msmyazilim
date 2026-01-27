@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { createReference, updateReference, deleteReference } from "@/app/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -189,8 +190,8 @@ export default function ReferencesAdminPage() {
         e.preventDefault()
         setLoading(true)
         try {
-            const referenceData: any = {
-                name: formData.name,
+            const referenceData = {
+                name: formData.name || "",
                 type: formData.type || types[0]?.name || "Genel",
                 online_count: formData.online_count || 0,
                 image_url: formData.image_url || null,
@@ -198,24 +199,11 @@ export default function ReferencesAdminPage() {
             }
 
             if (editingRef) {
-                const { error } = await supabase
-                    .from('references')
-                    .update(referenceData)
-                    .eq('id', editingRef.id)
-
-                if (error) {
-                    console.error('Update error:', error)
-                    throw error
-                }
+                // Server Action kullan
+                await updateReference(editingRef.id, referenceData)
             } else {
-                const { error } = await supabase
-                    .from('references')
-                    .insert([referenceData])
-
-                if (error) {
-                    console.error('Insert error:', error)
-                    throw error
-                }
+                // Server Action kullan
+                await createReference(referenceData)
             }
 
             // Dialog'u kapat ve formu sıfırla
@@ -237,12 +225,8 @@ export default function ReferencesAdminPage() {
 
         setLoading(true)
         try {
-            const { error } = await supabase
-                .from('references')
-                .delete()
-                .eq('id', id)
-
-            if (error) throw error
+            // Server Action kullan
+            await deleteReference(id)
             
             // Listeyi yeniden yükle
             await fetchReferences(false)

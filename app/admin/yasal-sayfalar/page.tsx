@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { createLegalPage, updateLegalPage, deleteLegalPage } from "@/app/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -102,25 +103,19 @@ export default function LegalPagesAdminPage() {
             }
 
             const pageData = {
-                ...formData,
-                slug: formData.slug.toLowerCase().trim(),
-                title: formData.title.trim(),
-                description: formData.description?.trim() || null,
+                slug: formData.slug!.toLowerCase().trim(),
+                title: formData.title!.trim(),
+                content: formData.content!.trim(),
                 last_updated: formData.last_updated || new Date().toISOString().split('T')[0]
             }
 
             if (formData.id) {
-                const { error } = await supabase
-                    .from('legal_pages')
-                    .update(pageData)
-                    .eq('id', formData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateLegalPage(formData.id, pageData)
                 setSuccess("Sayfa başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('legal_pages')
-                    .insert([pageData])
-                if (error) throw error
+                // Server Action kullan
+                await createLegalPage(pageData)
                 setSuccess("Sayfa başarıyla eklendi!")
             }
             
@@ -148,11 +143,8 @@ export default function LegalPagesAdminPage() {
         setLoading(true)
         setError(null)
         try {
-            const { error } = await supabase
-                .from('legal_pages')
-                .delete()
-                .eq('id', id)
-            if (error) throw error
+            // Server Action kullan
+            await deleteLegalPage(id)
             setSuccess("Sayfa başarıyla silindi!")
             await fetchPages()
         } catch (err: any) {

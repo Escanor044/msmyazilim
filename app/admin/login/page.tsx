@@ -104,7 +104,9 @@ export default function AdminLoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-
+        
+        console.log('🔵 Login form submitted!', { email, passwordLength: password.length })
+        
         if (isBlocked) {
             setError("Çok fazla deneme yapıldı. Lütfen 5 dakika sonra tekrar deneyin.")
             return
@@ -114,9 +116,14 @@ export default function AdminLoginPage() {
         setError(null)
 
         try {
+            console.log('🟢 Starting login process...')
+            
             // Input validation
             const sanitizedEmail = sanitizeInput(email)
+            console.log('📧 Email validation:', { original: email, sanitized: sanitizedEmail, isValid: isValidEmail(sanitizedEmail) })
+            
             if (!isValidEmail(sanitizedEmail)) {
+                console.error('❌ Invalid email format')
                 setError("Geçerli bir email adresi girin.")
                 setLoading(false)
                 return
@@ -163,8 +170,18 @@ export default function AdminLoginPage() {
                 hasError: !!error,
                 userEmail: data?.user?.email,
                 errorMessage: error?.message,
-                errorStatus: error?.status
+                errorStatus: error?.status,
+                fullData: data,
+                fullError: error
             })
+            
+            // Daha detaylı log
+            if (data?.user) {
+                console.log('✅ User data:', data.user)
+            }
+            if (error) {
+                console.error('❌ Login error details:', error)
+            }
 
             if (error) {
                 setAttempts(prev => prev + 1)
@@ -200,8 +217,15 @@ export default function AdminLoginPage() {
             }
 
             // Giriş başarılı olduktan sonra email kontrolü tekrar yap
-            if (data.user?.email) {
+            if (data?.user?.email) {
+                console.log('🔍 Final email check:', {
+                    userEmail: data.user.email,
+                    allowedEmail: allowedAdminEmail,
+                    match: data.user.email.toLowerCase() === allowedAdminEmail?.toLowerCase()
+                })
+                
                 if (allowedAdminEmail && data.user.email.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
+                    console.error('❌ Email mismatch - signing out')
                     await supabase.auth.signOut()
                     setError("Bu email adresi ile giriş yapılamaz.")
                     setLoading(false)
@@ -216,13 +240,53 @@ export default function AdminLoginPage() {
                 }
             }
 
+            console.log('✅ Login successful!', { 
+                userEmail: data?.user?.email,
+                hasSession: !!data?.session,
+                accessToken: data?.session?.access_token ? 'exists' : 'missing'
+            })
+            
+            // Session'ı kontrol et ve cookie'lere kaydet
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+            console.log('🔐 Session check:', { 
+                hasSession: !!sessionData?.session,
+                userEmail: sessionData?.session?.user?.email,
+                error: sessionError
+            })
+            
+            if (!sessionData?.session && !data?.session) {
+                console.error('❌ No session after login! Waiting a bit...')
+                // Biraz bekle ve tekrar dene
+                await new Promise(resolve => setTimeout(resolve, 500))
+                const { data: retrySession } = await supabase.auth.getSession()
+                console.log('🔄 Retry session:', { hasSession: !!retrySession?.session })
+                
+                if (!retrySession?.session) {
+                    setError("Session oluşturulamadı. Lütfen sayfayı yenileyip tekrar deneyin.")
+                    setLoading(false)
+                    return
+                }
+            }
+            
+            console.log('🚀 Redirecting to /admin/server-files-packages...')
+            
+            // Session'ın cookie'lere kaydedilmesi için kısa bir delay
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Router ile yönlendir (SPA navigation - sayfa yenilenmez)
+            console.log('📍 Calling router.push...')
             router.push("/admin/server-files-packages")
+            
+            // Router.refresh() çağır (server component'leri yenile)
             router.refresh()
+            
+            console.log('✅ Navigation initiated')
         } catch (err: any) {
             // Bu catch bloğu artık sadece beklenmeyen hatalar için
-            console.error('Unexpected login error:', err)
+            console.error('❌ Unexpected login error:', err)
             setError(err.message || "Giriş yapılırken beklenmeyen bir hata oluştu.")
         } finally {
+            console.log('🏁 Login process finished')
             setLoading(false)
         }
     }

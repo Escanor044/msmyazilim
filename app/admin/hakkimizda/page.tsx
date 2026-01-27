@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { createAboutPage, updateAboutPage, createAboutValue, updateAboutValue, createAboutTeam, updateAboutTeam, deleteAboutItem } from "@/app/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -112,18 +113,22 @@ export default function AboutAdminPage() {
         setSuccess(null)
 
         try {
+            const pageData = {
+                section_type: pageFormData.section_type || "",
+                title: pageFormData.title || null,
+                description: pageFormData.description || null,
+                content: pageFormData.content || null,
+                active: pageFormData.active !== undefined ? pageFormData.active : true,
+                sort_order: pageFormData.sort_order || 0
+            }
+
             if (pageFormData.id) {
-                const { error } = await supabase
-                    .from('about_page')
-                    .update(pageFormData)
-                    .eq('id', pageFormData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateAboutPage(pageFormData.id, pageData)
                 setSuccess("Bölüm başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('about_page')
-                    .insert([pageFormData])
-                if (error) throw error
+                // Server Action kullan
+                await createAboutPage(pageData)
                 setSuccess("Bölüm başarıyla eklendi!")
             }
             
@@ -144,18 +149,21 @@ export default function AboutAdminPage() {
         setSuccess(null)
 
         try {
+            const valueData = {
+                title: valueFormData.title || "",
+                description: valueFormData.description || "",
+                icon: valueFormData.icon || null,
+                sort_order: valueFormData.sort_order || 0,
+                active: valueFormData.active !== undefined ? valueFormData.active : true
+            }
+
             if (valueFormData.id) {
-                const { error } = await supabase
-                    .from('about_values')
-                    .update(valueFormData)
-                    .eq('id', valueFormData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateAboutValue(valueFormData.id, valueData)
                 setSuccess("Değer başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('about_values')
-                    .insert([valueFormData])
-                if (error) throw error
+                // Server Action kullan
+                await createAboutValue(valueData)
                 setSuccess("Değer başarıyla eklendi!")
             }
             
@@ -176,18 +184,23 @@ export default function AboutAdminPage() {
         setSuccess(null)
 
         try {
+            const teamData = {
+                name: teamFormData.name || "",
+                role: teamFormData.role || "",
+                description: teamFormData.description || "",
+                icon: teamFormData.icon || null,
+                image_url: teamFormData.image_url || null,
+                sort_order: teamFormData.sort_order || 0,
+                active: teamFormData.active !== undefined ? teamFormData.active : true
+            }
+
             if (teamFormData.id) {
-                const { error } = await supabase
-                    .from('about_team')
-                    .update(teamFormData)
-                    .eq('id', teamFormData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateAboutTeam(teamFormData.id, teamData)
                 setSuccess("Ekip üyesi başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('about_team')
-                    .insert([teamFormData])
-                if (error) throw error
+                // Server Action kullan
+                await createAboutTeam(teamData)
                 setSuccess("Ekip üyesi başarıyla eklendi!")
             }
             
@@ -207,12 +220,8 @@ export default function AboutAdminPage() {
         setLoading(true)
         setError(null)
         try {
-            const tableName = table === 'page' ? 'about_page' : table === 'value' ? 'about_values' : 'about_team'
-            const { error } = await supabase
-                .from(tableName)
-                .delete()
-                .eq('id', id)
-            if (error) throw error
+            // Server Action kullan
+            await deleteAboutItem(table, id)
             setSuccess("Öğe başarıyla silindi!")
             await fetchData()
         } catch (err: any) {

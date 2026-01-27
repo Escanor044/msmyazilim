@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { createServerFilePackage, updateServerFilePackage, deleteServerFilePackage, createSystem, updateSystem, deleteSystem } from "@/app/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -143,26 +144,26 @@ export default function ServerFilesPackagesAdminPage() {
 
         const featuresArray = packageFeaturesText.split('\n').filter(f => f.trim() !== '')
         const packageData = {
-            ...packageFormData,
+            package_type: packageFormData.package_type!,
+            title: packageFormData.title || "",
+            subtitle: packageFormData.subtitle || "",
             features: featuresArray,
+            link: packageFormData.link || "",
             youtube_url: packageFormData.youtube_url || null,
             badge_text: packageFormData.badge_text || null,
             badge_color: packageFormData.badge_color || null,
+            sort_order: packageFormData.sort_order || 0,
+            active: packageFormData.active !== undefined ? packageFormData.active : true
         }
 
         try {
             if (packageFormData.id) {
-                const { error } = await supabase
-                    .from('server_file_packages')
-                    .update(packageData)
-                    .eq('id', packageFormData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateServerFilePackage(packageFormData.id, packageData)
                 setSuccess("Paket başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('server_file_packages')
-                    .insert([packageData])
-                if (error) throw error
+                // Server Action kullan
+                await createServerFilePackage(packageData)
                 setSuccess("Paket başarıyla eklendi!")
             }
             
@@ -184,24 +185,25 @@ export default function ServerFilesPackagesAdminPage() {
 
         const featuresArray = systemFeaturesText.split('\n').filter(f => f.trim() !== '')
         const systemData = {
-            ...systemFormData,
+            name: systemFormData.name || "",
+            category: systemFormData.category || "",
+            desc: systemFormData.desc || null,
+            long_description: systemFormData.long_description || null,
             features: featuresArray,
+            price: systemFormData.price || null,
+            image: systemFormData.image || null,
+            included: systemFormData.included !== undefined ? systemFormData.included : false,
             package_type: systemFormData.package_type || null,
         }
 
         try {
             if (systemFormData.id) {
-                const { error } = await supabase
-                    .from('systems')
-                    .update(systemData)
-                    .eq('id', systemFormData.id)
-                if (error) throw error
+                // Server Action kullan
+                await updateSystem(systemFormData.id, systemData)
                 setSuccess("Sistem başarıyla güncellendi!")
             } else {
-                const { error } = await supabase
-                    .from('systems')
-                    .insert([systemData])
-                if (error) throw error
+                // Server Action kullan
+                await createSystem(systemData)
                 setSuccess("Sistem başarıyla eklendi!")
             }
             
@@ -312,11 +314,8 @@ export default function ServerFilesPackagesAdminPage() {
         setLoading(true)
         setError(null)
         try {
-            const { error } = await supabase
-                .from('server_file_packages')
-                .delete()
-                .eq('id', id)
-            if (error) throw error
+            // Server Action kullan
+            await deleteServerFilePackage(id)
             setSuccess("Paket başarıyla silindi!")
             await fetchPackages()
         } catch (err: any) {
@@ -332,11 +331,8 @@ export default function ServerFilesPackagesAdminPage() {
         setLoading(true)
         setError(null)
         try {
-            const { error } = await supabase
-                .from('systems')
-                .delete()
-                .eq('id', id)
-            if (error) throw error
+            // Server Action kullan
+            await deleteSystem(id)
             setSuccess("Sistem başarıyla silindi!")
             await fetchSystems()
         } catch (err: any) {
