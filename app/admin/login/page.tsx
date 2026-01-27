@@ -448,7 +448,7 @@ export default function AdminLoginPage() {
                             {/* Reset Password Form */}
                             <div className="space-y-4">
                                 <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm text-blue-200">
-                                    <p>Şifre sıfırlama linki sadece yetkili admin hesabına (msmyazilim1@gmail.com) gönderilebilir.</p>
+                                    <p>Şifre sıfırlama linki sadece yetkili admin hesabına gönderilebilir.</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -459,7 +459,7 @@ export default function AdminLoginPage() {
                                     <Input
                                         id="reset-email"
                                         type="email"
-                                        placeholder="msmyazilim1@gmail.com"
+                                        placeholder="admin@msmyazilim.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
