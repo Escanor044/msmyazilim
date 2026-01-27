@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +13,7 @@ import { logFailedLogin, getFailedLoginCount } from "@/lib/logger"
 
 export default function AdminLoginPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -54,11 +55,17 @@ export default function AdminLoginPage() {
 
             // Admin email kontrolü
             const allowedAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+            console.log('Admin email check:', {
+                allowed: allowedAdminEmail,
+                entered: sanitizedEmail,
+                match: allowedAdminEmail?.toLowerCase() === sanitizedEmail.toLowerCase()
+            })
+            
             if (allowedAdminEmail && sanitizedEmail.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
                 setAttempts(prev => prev + 1)
                 // Failed login logla
                 logFailedLogin(sanitizedEmail, undefined, navigator.userAgent, 'Unauthorized email')
-                setError("Bu email adresi ile giriş yapılamaz.")
+                setError(`Bu email adresi ile giriş yapılamaz. İzin verilen email: ${allowedAdminEmail}`)
                 setLoading(false)
                 return
             }
@@ -71,9 +78,23 @@ export default function AdminLoginPage() {
                 return
             }
 
+            console.log('Attempting login with:', {
+                email: sanitizedEmail,
+                passwordLength: password.length,
+                supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL
+            })
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: sanitizedEmail,
                 password: password, // Şifre sanitize edilmez, Supabase hash'ler
+            })
+
+            console.log('Login response:', {
+                hasData: !!data,
+                hasError: !!error,
+                userEmail: data?.user?.email,
+                errorMessage: error?.message,
+                errorStatus: error?.status
             })
 
             if (error) {
@@ -85,14 +106,15 @@ export default function AdminLoginPage() {
                 console.error('Supabase login error:', {
                     message: error.message,
                     status: error.status,
-                    name: error.name
+                    name: error.name,
+                    fullError: error
                 })
                 
                 // Daha anlaşılır hata mesajları
                 let errorMessage = "Giriş yapılırken bir hata oluştu."
                 
                 if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid credentials')) {
-                    errorMessage = "Email veya şifre hatalı. Lütfen Supabase Dashboard'da kullanıcının doğru oluşturulduğundan ve şifrenin doğru olduğundan emin olun."
+                    errorMessage = "Email veya şifre hatalı. Şifrenizi Supabase Dashboard > Users > Kullanıcı > 'Reset password' ile sıfırlayabilirsiniz. Email doğru görünüyor, muhtemelen şifre yanlış."
                 } else if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
                     errorMessage = "Email adresiniz doğrulanmamış. Supabase Dashboard > Users > Kullanıcıyı düzenleyin ve 'Confirm email' butonuna tıklayın."
                 } else if (error.message.includes('User not found')) {
@@ -172,6 +194,16 @@ export default function AdminLoginPage() {
                         <Alert variant="destructive" className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
                             <XCircle className="h-4 w-4" />
                             <AlertDescription className="text-red-400">{error}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Success Message */}
+                    {searchParams.get('password_reset') === 'success' && (
+                        <Alert className="border-green-500/50 bg-green-500/10">
+                            <CheckCircle2 className="h-4 w-4 text-green-400" />
+                            <AlertDescription className="text-green-400">
+                                Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz.
+                            </AlertDescription>
                         </Alert>
                     )}
 
