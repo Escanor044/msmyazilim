@@ -1,38 +1,23 @@
-import { Metadata } from "next"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { SystemsView } from "@/components/systems/systems-view"
-
-export const metadata: Metadata = {
-    title: "Sistem Çözümleri - Metin2 Sunucu Sistemleri",
-    description: "Sunucunuzu rakiplerinizden ayıracak modern, performanslı ve oyuncu dostu sistemler. PvP, PvM, Oyun Konforu, Etkinlik ve Yönetim sistemleri.",
-    openGraph: {
-        title: "Sistem Çözümleri - Metin2 Sunucu Sistemleri",
-        description: "Sunucunuzu rakiplerinizden ayıracak modern, performanslı ve oyuncu dostu sistemler.",
-    },
-}
 
 export default function SystemsPage() {
     return (
-        <main className="min-h-screen bg-background">
-            <Header />
+        <div className="min-h-screen pt-32 pb-16 px-4 md:px-8">
+            <div className="max-w-7xl mx-auto space-y-12">
 
-            <section className="pt-32 pb-16 bg-gradient-to-b from-indigo-900/20 to-transparent border-b border-white/5">
-                <div className="container-width text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6">Sistem Çözümleri</h1>
+                {/* Header Section (Image 1 Style) */}
+                <div className="text-center space-y-4">
+                    <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+                        Sistem Çözümleri
+                    </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Sunucunuzu rakiplerinizden ayıracak modern, performanslı ve oyuncu dostu sistemler.
                     </p>
                 </div>
-            </section>
 
-            <section className="py-16">
-                <div className="container-width">
-                    <SystemsView />
-                </div>
-            </section>
-
-            <Footer />
-        </main>
+                {/* Systems List Component */}
+                <SystemsView />
+            </div>
+        </div>
     )
 }

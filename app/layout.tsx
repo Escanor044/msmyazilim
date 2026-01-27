@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { CookieConsent } from "@/components/ui/cookie-consent";
+import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark">
       <body className={cn(inter.variable, "font-sans min-h-screen bg-background text-foreground")}>
-        {children}
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
         <CookieConsent />
       </body>
     </html>

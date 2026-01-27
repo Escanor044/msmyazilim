@@ -36,7 +36,6 @@ const faqCategories = [
 export default function FAQPage() {
     return (
         <main className="min-h-screen bg-background">
-            <Header />
 
             <section className="pt-32 pb-16 bg-gradient-to-b from-primary/5 to-transparent border-b border-white/5">
                 <div className="container-width text-center">
@@ -67,7 +66,6 @@ export default function FAQPage() {
                 </div>
             </section>
 
-            <Footer />
         </main>
     )
 }

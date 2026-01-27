@@ -3,11 +3,11 @@ import { Footer } from "@/components/layout/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, MessageSquare } from "lucide-react"
+import Link from "next/link"
 
 export default function ContactPage() {
     return (
         <main className="min-h-screen bg-background">
-            <Header />
 
             <section className="pt-32 pb-16 bg-gradient-to-b from-indigo-900/20 to-transparent border-b border-white/5">
                 <div className="container-width text-center">
@@ -30,7 +30,9 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-xl mb-1">WhatsApp / Discord</h3>
                                     <p className="text-muted-foreground mb-4">En hızlı iletişim kanallarımız.</p>
-                                    <Button variant="outline" className="mr-2">WhatsApp</Button>
+                                    <Button variant="outline" className="mr-2" asChild>
+                                        <Link href="https://wa.me/905551404633" target="_blank">WhatsApp</Link>
+                                    </Button>
                                     <Button variant="outline">Discord</Button>
                                 </div>
                             </div>
@@ -97,7 +99,6 @@ export default function ContactPage() {
                 </div>
             </section>
 
-            <Footer />
         </main>
     )
 }

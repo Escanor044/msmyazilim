@@ -5,10 +5,10 @@ import { Packages } from "@/components/sections/packages"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
+
 export default function FilesPage() {
     return (
         <main className="min-h-screen bg-background">
-            <Header />
 
             {/* Page Hero */}
             <section className="pt-32 pb-16 bg-gradient-to-b from-primary/10 to-transparent border-b border-white/5">
@@ -83,14 +83,13 @@ export default function FilesPage() {
                                 <li>• SSD Disk (Performans için şart)</li>
                             </ul>
                             <Button className="w-full" asChild>
-                                <Link href="https://wa.me/905550000000">Sunucu Tavsiyesi Al</Link>
+                                <Link href="https://wa.me/905551404633">Sunucu Tavsiyesi Al</Link>
                             </Button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <Footer />
         </main>
     )
 }

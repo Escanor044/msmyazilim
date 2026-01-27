@@ -1,49 +1,125 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, Monitor, Swords, Shield, Database, Settings, Crown, Eye, Smartphone } from "lucide-react"
+import { Search, Monitor, Swords, Shield, Database, Settings, Crown, Eye, Smartphone, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { systems } from "@/lib/systems-data"
+// import { systems } from "@/lib/systems-data" // Old hardcoded data
+import { supabase } from "@/lib/supabase"
 
-const categories = [
-    { id: "all", name: "Tümü", icon: Monitor },
-    { id: "pvp", name: "PvP Sistemleri", icon: Swords },
-    { id: "pvm", name: "PvM Sistemleri", icon: Database },
-    { id: "qol", name: "Oyun Konforu", icon: Crown },
-    { id: "admin", name: "Yönetim", icon: Shield },
-]
+interface System {
+    id: number
+    name: string
+    category: string
+    desc: string // Short description
+    included: boolean
+    image: string
+}
+
+interface Category {
+    id: number
+    name: string
+    slug: string
+    sort_order: number
+}
 
 export function SystemsView() {
     const [activeTab, setActiveTab] = useState("all")
     const [searchQuery, setSearchQuery] = useState("")
+    const [systems, setSystems] = useState<System[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            setLoading(true)
+
+            // Fetch categories
+            const { data: categoriesData } = await supabase
+                .from('system_categories')
+                .select('*')
+                .order('sort_order', { ascending: true })
+
+            if (categoriesData) {
+                setCategories(categoriesData)
+            }
+
+            // Fetch systems
+            const { data, error } = await supabase
+                .from('systems')
+                .select('*')
+                .order('id', { ascending: true }) // Order by ID or creation specific order? 
+
+            if (error) {
+                console.error("Error fetching systems:", error)
+                setError("Sistemler yüklenirken bir sorun oluştu.")
+            } else {
+                setSystems(data || [])
+            }
+            setLoading(false)
+        }
+
+        fetchData()
+    }, [])
 
     const filteredSystems = systems.filter(sys => {
         const matchesCategory = activeTab === "all" || sys.category === activeTab
         const matchesSearch = sys.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            sys.desc.toLowerCase().includes(searchQuery.toLowerCase())
+            (sys.desc && sys.desc.toLowerCase().includes(searchQuery.toLowerCase()))
         return matchesCategory && matchesSearch
     })
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-24">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 text-red-400 gap-4">
+                <AlertCircle className="h-12 w-12" />
+                <p>{error}</p>
+                <Button variant="outline" onClick={() => window.location.reload()}>Tekrar Dene</Button>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-8">
             {/* Controls */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-black/20 p-4 rounded-xl border border-white/5">
                 <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide">
+                    <button
+                        onClick={() => setActiveTab("all")}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                            activeTab === "all"
+                                ? "bg-primary text-white"
+                                : "bg-white/5 text-muted-foreground hover:bg-white/10"
+                        )}
+                    >
+                        <Monitor className="h-4 w-4" />
+                        Tümü
+                    </button>
                     {categories.map((cat) => (
                         <button
                             key={cat.id}
-                            onClick={() => setActiveTab(cat.id)}
+                            onClick={() => setActiveTab(cat.slug)}
                             className={cn(
                                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
-                                activeTab === cat.id
+                                activeTab === cat.slug
                                     ? "bg-primary text-white"
                                     : "bg-white/5 text-muted-foreground hover:bg-white/10"
                             )}
                         >
-                            <cat.icon className="h-4 w-4" />
+                            <Settings className="h-4 w-4" />
                             {cat.name}
                         </button>
                     ))}
@@ -68,7 +144,7 @@ export function SystemsView() {
                         className="group relative rounded-xl bg-card border hover:border-primary/50 transition-all duration-300 overflow-hidden flex flex-col h-full"
                     >
                         {/* Image Section */}
-                        {system.image && (
+                        {system.image ? (
                             <Link
                                 href={`/sistemler/${system.id}`}
                                 className="relative w-full aspect-video overflow-hidden bg-black/20 block"
@@ -78,6 +154,24 @@ export function SystemsView() {
                                     alt={system.name}
                                     className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-110"
                                 />
+                                <div className="absolute top-3 right-3 z-10">
+                                    {system.included ? (
+                                        <span className="px-2 py-1 rounded text-[10px] font-bold bg-green-500/90 text-white shadow-sm backdrop-blur-sm border border-green-400/20">
+                                            PAKETE DAHİL
+                                        </span>
+                                    ) : (
+                                        <span className="px-2 py-1 rounded text-[10px] font-bold bg-yellow-500/90 text-white shadow-sm backdrop-blur-sm border border-yellow-400/20">
+                                            EKSTRA
+                                        </span>
+                                    )}
+                                </div>
+                            </Link>
+                        ) : (
+                            <Link
+                                href={`/sistemler/${system.id}`}
+                                className="relative w-full aspect-video overflow-hidden bg-black/20 block flex items-center justify-center"
+                            >
+                                <Monitor className="h-12 w-12 text-muted-foreground/50" />
                                 <div className="absolute top-3 right-3 z-10">
                                     {system.included ? (
                                         <span className="px-2 py-1 rounded text-[10px] font-bold bg-green-500/90 text-white shadow-sm backdrop-blur-sm border border-green-400/20">
@@ -103,7 +197,7 @@ export function SystemsView() {
 
                             <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-4">{system.desc}</p>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 mt-auto">
                                 <Button
                                     asChild
                                     size="sm"
@@ -119,7 +213,7 @@ export function SystemsView() {
                                     size="sm"
                                     className="w-full bg-secondary/50 hover:bg-secondary/70 text-secondary-foreground border border-white/10 gap-2"
                                 >
-                                    <Link 
+                                    <Link
                                         href={`https://wa.me/905551404633?text=${encodeURIComponent(`Merhaba, ${system.name} hakkında bilgi almak istiyorum.`)}`}
                                         target="_blank"
                                     >
@@ -133,7 +227,7 @@ export function SystemsView() {
                 ))}
             </div>
 
-            {filteredSystems.length === 0 && (
+            {!loading && filteredSystems.length === 0 && (
                 <div className="text-center py-24 text-muted-foreground">
                     Aradığınız kriterlere uygun sistem bulunamadı.
                 </div>
