@@ -84,8 +84,34 @@ Hızlı test için basit bir şifre kullanabilirsiniz:
 
 ---
 
-## 📝 Not
 
+---
+
+## 🆕 Yöntem 3: Admin Paneli Üzerinden (Otomatik)
+
+Artık admin giriş sayfasında **"Şifremi Unuttum"** özelliği mevcuttur.
+
+1. **/admin/login** sayfasına gidin.
+2. Şifre alanının sağ üstündeki **"Şifremi Unuttum?"** linkine tıklayın.
+3. Yetkili email adresini (`msmyazilim1@gmail.com`) girin.
+4. **"Sıfırlama Linki Gönder"** butonuna tıklayın.
+5. Emailinize gelen linke tıklayın.
+6. Açılan sayfada yeni şifrenizi belirleyin.
+
+### ⚠️ ÖNEMLİ: Supabase Redirect URL Ayarı
+
+Bu özelliğin çalışması için Supabase Dashboard'da "Redirect URL" ayarının yapılmış olması gerekir. Aksi takdirde linke tıklandığında `{"error": "requested path is invalid"}` hatası alırsınız.
+
+1. **Supabase Dashboard > Authentication > URL Configuration** gidin.
+2. **Redirect URLs** kısmına sitenizin adresini ekleyin:
+   - `https://www.msmyazilim.com/admin/reset-password` (Canlı Site)
+   - `http://localhost:3000/admin/reset-password` (Test/Localhost)
+3. **Save** butonuna basın.
+
+---
+
+## 📝 Not
 - Şifre Supabase'de hash'lenerek saklanır
 - Şifreyi unutursanız her zaman Supabase Dashboard'dan sıfırlayabilirsiniz
 - Güvenlik için şifreyi düzenli olarak değiştirin
+

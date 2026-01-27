@@ -22,6 +22,10 @@ export default function AdminLoginPage() {
     const [attempts, setAttempts] = useState(0)
     const [isBlocked, setIsBlocked] = useState(false)
 
+
+    const [isResetMode, setIsResetMode] = useState(false)
+    const [resetSuccess, setResetSuccess] = useState(false)
+
     useEffect(() => {
         // Rate limiting kontrolü
         const identifier = `login_${email || 'unknown'}`
@@ -32,6 +36,71 @@ export default function AdminLoginPage() {
             setIsBlocked(false)
         }
     }, [attempts, email])
+
+    const getRedirectUrl = () => {
+        if (typeof window === 'undefined') return ''
+        // Localhost kontrolü
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return `${window.location.origin}/admin/reset-password`
+        }
+        // Production için her zaman whitelist'teki tam adresi döndür (www ile)
+        return 'https://www.msmyazilim.com/admin/reset-password'
+    }
+
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        setLoading(true)
+        setError(null)
+        setResetSuccess(false)
+
+        try {
+            const sanitizedEmail = sanitizeInput(email)
+
+            // Sadece belirli email adresine izin ver
+            const allowedEmails = [
+                process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase(),
+                'msmyazilim1@gmail.com'
+            ].filter(Boolean)
+
+            if (!allowedEmails.includes(sanitizedEmail.toLowerCase())) {
+                setError("Bu email adresi için şifre sıfırlama işlemi yapılamaz.")
+                setLoading(false)
+                return
+            }
+
+            const redirectUrl = getRedirectUrl()
+            console.log('Sending reset password email to:', sanitizedEmail, 'Redirect URL:', redirectUrl)
+
+            const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
+                redirectTo: redirectUrl,
+            })
+
+            if (error) {
+                console.error('Reset password error:', error)
+                throw error
+            }
+
+            setResetSuccess(true)
+            setError(null)
+
+        } catch (err: any) {
+            console.error('Reset password error:', err)
+
+            // Hata mesajlarını Türkçeleştir
+            let errorMessage = err.message || "Şifre sıfırlama maili gönderilirken bir hata oluştu."
+
+            if (errorMessage.includes("rate limit exceeded") || errorMessage.includes("Too many requests")) {
+                errorMessage = "Çok fazla istek gönderildi. Lütfen 1-2 dakika bekleyip tekrar deneyin. (Gelen kutunuzu ve spam klasörünü kontrol etmeyi unutmayın)"
+            } else if (errorMessage.includes("Signups not allowed")) {
+                errorMessage = "Kayıt olma yetkiniz yok veya sistem kapalı."
+            }
+
+            setError(errorMessage)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -204,7 +273,17 @@ export default function AdminLoginPage() {
                         </Alert>
                     )}
 
-                    {/* Success Message */}
+                    {/* Reset Email Success Message */}
+                    {resetSuccess && (
+                        <Alert className="border-green-500/50 bg-green-500/10">
+                            <CheckCircle2 className="h-4 w-4 text-green-400" />
+                            <AlertDescription className="text-green-400">
+                                Sıfırlama linki gönderildi! Lütfen email kutunuzu (spam dahil) kontrol edin. Linke tıklayarak yeni şifrenizi belirleyebilirsiniz.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Success Message from URL */}
                     {searchParams.get('password_reset') === 'success' && (
                         <Alert className="border-green-500/50 bg-green-500/10">
                             <CheckCircle2 className="h-4 w-4 text-green-400" />
@@ -215,78 +294,147 @@ export default function AdminLoginPage() {
                     )}
 
                     {/* Login Form */}
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {/* Email Input */}
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="text-sm font-semibold text-white/90 flex items-center gap-2">
-                                <Mail className="h-4 w-4 text-primary" />
-                                Email Adresi
-                            </Label>
-                            <div className="relative">
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="admin@msmyazilim.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-4 text-white placeholder:text-white/30"
-                                    disabled={loading}
-                                />
+                    {!isResetMode ? (
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            {/* Email Input */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-primary" />
+                                    Email Adresi
+                                </Label>
+                                <div className="relative">
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="admin@msmyazilim.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-4 text-white placeholder:text-white/30"
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Password Input */}
-                        <div className="space-y-2">
-                            <Label htmlFor="password" className="text-sm font-semibold text-white/90 flex items-center gap-2">
-                                <Lock className="h-4 w-4 text-primary" />
-                                Şifre
-                            </Label>
-                            <div className="relative">
-                                <Input
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-12 text-white placeholder:text-white/30"
-                                    disabled={loading}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                                    disabled={loading}
-                                >
-                                    {showPassword ? (
-                                        <Lock className="h-5 w-5" />
-                                    ) : (
-                                        <Lock className="h-5 w-5" />
-                                    )}
-                                </button>
+                            {/* Password Input */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password" className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                                        <Lock className="h-4 w-4 text-primary" />
+                                        Şifre
+                                    </Label>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsResetMode(true)
+                                            setError(null)
+                                        }}
+                                        className="text-xs text-primary hover:text-primary/80 transition-colors"
+                                    >
+                                        Şifremi Unuttum?
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-12 text-white placeholder:text-white/30"
+                                        disabled={loading}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                                        disabled={loading}
+                                    >
+                                        {showPassword ? (
+                                            <Lock className="h-5 w-5" />
+                                        ) : (
+                                            <Lock className="h-5 w-5" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            className="w-full h-12 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white font-semibold shadow-lg shadow-primary/50 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                                    Giriş yapılıyor...
-                                </>
-                            ) : (
-                                <>
-                                    <Shield className="h-5 w-5 mr-2" />
-                                    Giriş Yap
-                                </>
-                            )}
-                        </Button>
-                    </form>
+                            {/* Submit Button */}
+                            <Button
+                                type="submit"
+                                className="w-full h-12 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white font-semibold shadow-lg shadow-primary/50 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                        Giriş yapılıyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Shield className="h-5 w-5 mr-2" />
+                                        Giriş Yap
+                                    </>
+                                )}
+                            </Button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleResetPassword} className="space-y-6">
+                            {/* Reset Password Form */}
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm text-blue-200">
+                                    <p>Şifre sıfırlama linki sadece yetkili admin hesabına (msmyazilim1@gmail.com) gönderilebilir.</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="reset-email" className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                                        <Mail className="h-4 w-4 text-primary" />
+                                        Email Adresi
+                                    </Label>
+                                    <Input
+                                        id="reset-email"
+                                        type="email"
+                                        placeholder="msmyazilim1@gmail.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-4 text-white placeholder:text-white/30"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full h-12 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white font-semibold shadow-lg shadow-primary/50 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                        Gönderiliyor...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Mail className="h-5 w-5 mr-2" />
+                                        Sıfırlama Linki Gönder
+                                    </>
+                                )}
+                            </Button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsResetMode(false)
+                                    setError(null)
+                                }}
+                                className="w-full text-sm text-white/50 hover:text-white transition-colors"
+                            >
+                                Giriş Ekranına Dön
+                            </button>
+                        </form>
+                    )}
 
                     {/* Footer Info */}
                     <div className="pt-4 border-t border-white/10">

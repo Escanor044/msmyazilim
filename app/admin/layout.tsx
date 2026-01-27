@@ -22,7 +22,7 @@ export default function AdminLayout({
     const checkAuth = async () => {
         const { data: { session } } = await supabase.auth.getSession()
 
-        if (!session && pathname !== "/admin/login") {
+        if (!session && pathname !== "/admin/login" && pathname !== "/admin/reset-password") {
             redirect("/admin/login")
             return
         }
@@ -57,7 +57,7 @@ export default function AdminLayout({
     }
 
     // Only render layout wrapper for non-login pages
-    if (pathname === "/admin/login") {
+    if (pathname === "/admin/login" || pathname === "/admin/reset-password") {
         return <>{children}</>
     }
 

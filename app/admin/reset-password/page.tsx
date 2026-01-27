@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const token = searchParams.get('token')
-    
+
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -23,16 +23,33 @@ export default function ResetPasswordPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     useEffect(() => {
-        // URL hash'inden token'ı al (Supabase hash'te gönderir)
+        // URL'den parametreleri al
         const hash = window.location.hash
-        if (hash) {
+        const code = searchParams.get('code')
+
+        if (code) {
+            // PKCE Flow: Code varsa session ile takas et
+            console.log('Detected PKCE code, exchanging for session...')
+            supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+                if (error) {
+                    console.error('Code exchange error:', error)
+                    setError("Link süresi dolmuş veya geçersiz. Lütfen tekrar deneyin.")
+                } else {
+                    console.log('Code exchanged, session active:', !!data.session)
+                    // URL'i temizle
+                    window.history.replaceState(null, '', window.location.pathname)
+                }
+            })
+        }
+        else if (hash) {
+            // Implicit Flow: Hash varsa parse et
             const params = new URLSearchParams(hash.substring(1))
             const accessToken = params.get('access_token')
             const refreshToken = params.get('refresh_token')
             const type = params.get('type')
-            
+
             console.log('Hash params:', { type, hasAccessToken: !!accessToken })
-            
+
             if (type === 'recovery' && accessToken) {
                 // Token'ı session'a kaydet
                 supabase.auth.setSession({
@@ -51,11 +68,11 @@ export default function ResetPasswordPage() {
             } else if (type === 'recovery' && !accessToken) {
                 setError("Geçersiz token. Lütfen email'inizdeki linki kullanın.")
             }
-        } else if (!token) {
-            // Hash yok ve token yok - muhtemelen direkt sayfaya gelmiş
+        } else if (!token && !code) {
+            // Hash yok ve token yok ve code yok - muhtemelen direkt sayfaya gelmiş
             setError("Geçersiz veya eksik token. Lütfen email'inizdeki şifre sıfırlama linkini kullanın.")
         }
-    }, [token])
+    }, [token, searchParams])
 
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -76,11 +93,11 @@ export default function ResetPasswordPage() {
         try {
             // Session kontrolü yap
             const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-            
+
             if (sessionError) {
                 throw sessionError
             }
-            
+
             if (!session) {
                 throw new Error("Session bulunamadı. Lütfen email'inizdeki şifre sıfırlama linkini kullanın.")
             }
@@ -89,13 +106,13 @@ export default function ResetPasswordPage() {
             const { error: resetError } = await supabase.auth.updateUser({
                 password: password
             })
-            
+
             if (resetError) {
                 throw resetError
             }
 
             setSuccess(true)
-            
+
             // 2 saniye sonra login sayfasına yönlendir
             setTimeout(() => {
                 router.push('/admin/login?password_reset=success')
@@ -123,7 +140,7 @@ export default function ResetPasswordPage() {
                     <div className="glass-card p-8 md:p-10 rounded-3xl border-white/10 shadow-2xl backdrop-blur-xl bg-zinc-900/80 space-y-6 relative overflow-hidden">
                         {/* Top Gradient Line */}
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
-                        
+
                         <div className="text-center space-y-4">
                             <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-500/50 mx-auto">
                                 <CheckCircle2 className="h-8 w-8" strokeWidth={2.5} />

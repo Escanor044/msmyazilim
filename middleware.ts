@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
     // Admin route'larını koru
     if (req.nextUrl.pathname.startsWith('/admin')) {
-        // Login sayfasına izin ver
-        if (req.nextUrl.pathname === '/admin/login') {
+        // Login ve Reset Password sayfalarına izin ver
+        if (req.nextUrl.pathname === '/admin/login' || req.nextUrl.pathname === '/admin/reset-password') {
             return NextResponse.next()
         }
 
