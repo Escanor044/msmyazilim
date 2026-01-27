@@ -5,6 +5,7 @@ import Link from "next/link"
 import { FilteredSystemsView } from "@/components/systems/filtered-systems-view"
 import { supabase } from "@/lib/supabase"
 import { Loader2 } from "lucide-react"
+import { convertToYouTubeEmbed } from "@/lib/youtube-utils"
 
 interface ServerFilePackage {
     id: number
@@ -139,21 +140,28 @@ export default function ServerFilesPage() {
                                             </Link>
 
                                             {/* YouTube Video */}
-                                            {pkg.youtube_url ? (
-                                                <div className="aspect-video rounded-lg border border-zinc-700/50 overflow-hidden">
-                                                    <iframe
-                                                        src={pkg.youtube_url}
-                                                        title={`${pkg.title} Video`}
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        allowFullScreen
-                                                        className="w-full h-full"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="aspect-video bg-zinc-800/50 rounded-lg border border-zinc-700/50 flex items-center justify-center">
-                                                    <p className="text-sm text-muted-foreground">YouTube Video</p>
-                                                </div>
-                                            )}
+                                            {(() => {
+                                                const embedUrl = convertToYouTubeEmbed(pkg.youtube_url)
+                                                return embedUrl ? (
+                                                    <div className="aspect-video rounded-lg border border-zinc-700/50 overflow-hidden bg-zinc-900">
+                                                        <iframe
+                                                            src={embedUrl}
+                                                            title={`${pkg.title} Video`}
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                            allowFullScreen
+                                                            loading="lazy"
+                                                            className="w-full h-full"
+                                                            frameBorder="0"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="aspect-video bg-zinc-800/50 rounded-lg border border-zinc-700/50 flex items-center justify-center">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {pkg.youtube_url ? `Geçersiz YouTube URL: ${pkg.youtube_url}` : 'YouTube Video'}
+                                                        </p>
+                                                    </div>
+                                                )
+                                            })()}
                                         </div>
 
                                         {/* Cam Efekti Yansıması */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { createServerFilePackage, updateServerFilePackage, deleteServerFilePackage, createSystem, updateSystem, deleteSystem } from "@/app/actions/admin-actions"
+import { convertToYouTubeEmbed } from "@/lib/youtube-utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -143,13 +144,17 @@ export default function ServerFilesPackagesAdminPage() {
         setSuccess(null)
 
         const featuresArray = packageFeaturesText.split('\n').filter(f => f.trim() !== '')
+        
+        // YouTube URL'ini embed formatına çevir
+        const youtubeEmbedUrl = convertToYouTubeEmbed(packageFormData.youtube_url)
+        
         const packageData = {
             package_type: packageFormData.package_type!,
             title: packageFormData.title || "",
             subtitle: packageFormData.subtitle || "",
             features: featuresArray,
             link: packageFormData.link || "",
-            youtube_url: packageFormData.youtube_url || null,
+            youtube_url: youtubeEmbedUrl,
             badge_text: packageFormData.badge_text || null,
             badge_color: packageFormData.badge_color || null,
             sort_order: packageFormData.sort_order || 0,
@@ -506,10 +511,10 @@ export default function ServerFilesPackagesAdminPage() {
                                 <Input
                                     value={packageFormData.youtube_url || ""}
                                     onChange={e => setPackageFormData({ ...packageFormData, youtube_url: e.target.value || null })}
-                                    placeholder="https://www.youtube.com/embed/wEOz2Ua3a50"
+                                    placeholder="https://www.youtube.com/watch?v=VIDEO_ID veya https://youtu.be/VIDEO_ID"
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    YouTube embed URL formatında olmalı (embed/...)
+                                    Herhangi bir YouTube URL formatı kabul edilir (watch, youtu.be, embed). Otomatik olarak embed formatına çevrilir.
                                 </p>
                             </div>
 
