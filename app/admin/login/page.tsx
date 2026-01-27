@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (isBlocked) {
             setError("Çok fazla deneme yapıldı. Lütfen 5 dakika sonra tekrar deneyin.")
             return
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
                 entered: sanitizedEmail,
                 match: allowedAdminEmail?.toLowerCase() === sanitizedEmail.toLowerCase()
             })
-            
+
             if (allowedAdminEmail && sanitizedEmail.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
                 setAttempts(prev => prev + 1)
                 // Failed login logla
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
                 setAttempts(prev => prev + 1)
                 // Failed login logla
                 logFailedLogin(sanitizedEmail, undefined, navigator.userAgent, error.message)
-                
+
                 // Debug için console'a yazdır
                 console.error('Supabase login error:', {
                     message: error.message,
@@ -109,10 +109,10 @@ export default function AdminLoginPage() {
                     name: error.name,
                     fullError: error
                 })
-                
+
                 // Daha anlaşılır hata mesajları
                 let errorMessage = "Giriş yapılırken bir hata oluştu."
-                
+
                 if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid credentials')) {
                     errorMessage = "Email veya şifre hatalı. Şifrenizi Supabase Dashboard > Users > Kullanıcı > 'Reset password' ile sıfırlayabilirsiniz. Email doğru görünüyor, muhtemelen şifre yanlış."
                 } else if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
                 } else {
                     errorMessage = `${error.message || errorMessage} (Hata kodu: ${error.status || 'N/A'})`
                 }
-                
+
                 setError(errorMessage)
                 setLoading(false)
                 return
@@ -137,6 +137,13 @@ export default function AdminLoginPage() {
                     setError("Bu email adresi ile giriş yapılamaz.")
                     setLoading(false)
                     return
+                }
+
+                // Session varsa cookie'leri set et (Middleware için gerekli)
+                if (data.session) {
+                    const maxAge = 60 * 60 * 24 * 7 // 1 hafta
+                    document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`
+                    document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`
                 }
             }
 
