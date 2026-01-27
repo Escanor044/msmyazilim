@@ -1,8 +1,7 @@
-
 import { Hero } from '@/components/sections/hero'
 import { Stats } from '@/components/sections/stats'
 import { Services } from '@/components/sections/services'
-import { Packages } from '@/components/sections/packages'
+import PricingCards3D from '@/components/PricingCards3D'
 import { Timeline } from '@/components/sections/timeline'
 import { Testimonials } from '@/components/sections/testimonials'
 import { FAQPreview } from '@/components/sections/faq-preview'
@@ -14,7 +13,7 @@ export default function Home() {
       <Hero />
       <Stats />
       <Services />
-      <Packages />
+      <PricingCards3D />
       <Timeline />
       <Testimonials />
       <FAQPreview />

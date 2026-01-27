@@ -25,9 +25,12 @@ import {
 interface Reference {
     id: number
     name: string
-    type: string
-    online_count: number
-    image_url: string | null
+    type?: string
+    online_count?: number
+    image_url?: string | null
+    logo?: string | null
+    description?: string | null
+    website?: string | null
 }
 
 interface ReferenceType {
@@ -59,12 +62,12 @@ export default function ReferencesAdminPage() {
     })
 
     useEffect(() => {
-        fetchReferences()
+        fetchReferences(true)
         fetchTypes()
     }, [])
 
-    const fetchReferences = async () => {
-        // ... (existing fetchReferences logic)
+    const fetchReferences = async (showLoading = false) => {
+        if (showLoading) setLoading(true)
         try {
             const { data, error } = await supabase
                 .from('references')
@@ -76,7 +79,7 @@ export default function ReferencesAdminPage() {
         } catch (error) {
             console.error('Error fetching references:', error)
         } finally {
-            setLoading(false)
+            if (showLoading) setLoading(false)
         }
     }
 
@@ -87,10 +90,19 @@ export default function ReferencesAdminPage() {
                 .select('*')
                 .order('sort_order', { ascending: true })
 
-            if (error) throw error
+            if (error) {
+                // Tablo yoksa sessizce geç (opsiyonel özellik)
+                if (error.code === '42P01' || error.message?.includes('does not exist')) {
+                    console.warn('reference_types table does not exist. Skipping types.')
+                    setTypes([])
+                    return
+                }
+                throw error
+            }
             setTypes(data || [])
         } catch (error) {
             console.error('Error fetching types:', error)
+            setTypes([]) // Hata durumunda boş array set et
         }
     }
 
@@ -175,46 +187,55 @@ export default function ReferencesAdminPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setLoading(true)
         try {
+            const referenceData: any = {
+                name: formData.name,
+                type: formData.type || types[0]?.name || "Genel",
+                online_count: formData.online_count || 0,
+                image_url: formData.image_url || null,
+                logo: formData.image_url || null // logo alanını da doldur (geriye dönük uyumluluk için)
+            }
+
             if (editingRef) {
                 const { error } = await supabase
                     .from('references')
-                    .update({
-                        name: formData.name,
-                        type: formData.type,
-                        online_count: formData.online_count,
-                        image_url: formData.image_url
-                    })
+                    .update(referenceData)
                     .eq('id', editingRef.id)
 
-                if (error) throw error
-                alert('Referans güncellendi!')
+                if (error) {
+                    console.error('Update error:', error)
+                    throw error
+                }
             } else {
                 const { error } = await supabase
                     .from('references')
-                    .insert([{
-                        name: formData.name,
-                        type: formData.type || types[0]?.name || "Genel",
-                        online_count: formData.online_count,
-                        image_url: formData.image_url
-                    }])
+                    .insert([referenceData])
 
-                if (error) throw error
-                alert('Yeni referans eklendi!')
+                if (error) {
+                    console.error('Insert error:', error)
+                    throw error
+                }
             }
 
+            // Dialog'u kapat ve formu sıfırla
             setIsDialogOpen(false)
             resetForm()
-            fetchReferences()
-        } catch (error) {
+            
+            // Referansları yeniden yükle
+            await fetchReferences(false)
+        } catch (error: any) {
             console.error('Error saving reference:', error)
-            alert('Kaydedilirken bir hata oluştu.')
+            alert(`Kaydedilirken bir hata oluştu: ${error.message || 'Bilinmeyen hata'}`)
+        } finally {
+            setLoading(false)
         }
     }
 
     const handleDelete = async (id: number) => {
         if (!confirm('Bu referansı silmek istediğinize emin misiniz?')) return
 
+        setLoading(true)
         try {
             const { error } = await supabase
                 .from('references')
@@ -222,10 +243,14 @@ export default function ReferencesAdminPage() {
                 .eq('id', id)
 
             if (error) throw error
-            setReferences(references.filter(ref => ref.id !== id))
+            
+            // Listeyi yeniden yükle
+            await fetchReferences(false)
         } catch (error) {
             console.error('Error deleting reference:', error)
             alert('Silinirken bir hata oluştu.')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -233,9 +258,9 @@ export default function ReferencesAdminPage() {
         setEditingRef(ref)
         setFormData({
             name: ref.name,
-            type: ref.type,
-            online_count: ref.online_count,
-            image_url: ref.image_url || ""
+            type: ref.type || "",
+            online_count: ref.online_count || 0,
+            image_url: ref.image_url || ref.logo || ""
         })
         setIsDialogOpen(true)
     }
@@ -300,9 +325,17 @@ export default function ReferencesAdminPage() {
                         </DialogContent>
                     </Dialog>
 
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                        setIsDialogOpen(open)
+                        if (!open) {
+                            resetForm()
+                        }
+                    }}>
                         <DialogTrigger asChild>
-                            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
+                            <Button onClick={() => {
+                                resetForm()
+                                setIsDialogOpen(true)
+                            }} className="bg-primary hover:bg-primary/90">
                                 <Plus className="mr-2 h-4 w-4" /> Yeni Ekle
                             </Button>
                         </DialogTrigger>
@@ -324,19 +357,33 @@ export default function ReferencesAdminPage() {
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Sunucu Tipi</label>
-                                    <Select
-                                        value={formData.type}
-                                        onValueChange={(value) => setFormData({ ...formData, type: value })}
-                                    >
-                                        <SelectTrigger className="bg-white/5 border-white/10">
-                                            <SelectValue placeholder="Tip Seçin" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {types.map(type => (
-                                                <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    {types.length > 0 ? (
+                                        <Select
+                                            value={formData.type}
+                                            onValueChange={(value) => setFormData({ ...formData, type: value })}
+                                        >
+                                            <SelectTrigger className="bg-white/5 border-white/10">
+                                                <SelectValue placeholder="Tip Seçin" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {types.map(type => (
+                                                    <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <Input
+                                            value={formData.type}
+                                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                            placeholder="Tip girin (örn: Genel)"
+                                            className="bg-white/5 border-white/10"
+                                        />
+                                    )}
+                                    {types.length === 0 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Kategori yoksa manuel olarak tip girebilirsiniz veya "Kategorileri Yönet" butonundan kategori ekleyebilirsiniz.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
@@ -402,9 +449,9 @@ export default function ReferencesAdminPage() {
                 {references.map((ref) => (
                     <div key={ref.id} className="relative group bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-colors">
                         <div className="aspect-video bg-black/40 relative">
-                            {ref.image_url ? (
+                            {(ref.image_url || ref.logo) ? (
                                 <img
-                                    src={ref.image_url}
+                                    src={ref.image_url || ref.logo || ""}
                                     alt={ref.name}
                                     className="w-full h-full object-cover"
                                 />

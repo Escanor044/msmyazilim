@@ -1,7 +1,7 @@
 "use client"
 
 import { redirect, usePathname } from "next/navigation"
-import { Shield, LayoutDashboard, Database, FileText, LogOut, Loader2, Users } from "lucide-react"
+import { Shield, LayoutDashboard, Database, FileText, LogOut, Loader2, Users, Package, Server, Scale } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -21,9 +21,22 @@ export default function AdminLayout({
 
     const checkAuth = async () => {
         const { data: { session } } = await supabase.auth.getSession()
+        
         if (!session && pathname !== "/admin/login") {
             redirect("/admin/login")
+            return
         }
+
+        // Admin email kontrolü - sadece belirli email ile giriş yapılabilir
+        if (session?.user?.email) {
+            const allowedAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+            if (allowedAdminEmail && session.user.email.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
+                await supabase.auth.signOut()
+                redirect("/admin/login")
+                return
+            }
+        }
+
         setLoading(false)
     }
 
@@ -63,18 +76,39 @@ export default function AdminLayout({
                         Dashboard
                     </Link>
                     <Link
-                        href="/admin/sistemler"
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
-                    >
-                        <Database className="h-4 w-4" />
-                        Sistemler
-                    </Link>
-                    <Link
                         href="/admin/referanslar"
                         className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
                     >
                         <Users className="h-4 w-4" />
                         Referanslar
+                    </Link>
+                    <Link
+                        href="/admin/paketler"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+                    >
+                        <Package className="h-4 w-4" />
+                        Paketler
+                    </Link>
+                    <Link
+                        href="/admin/server-files-packages"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+                    >
+                        <Server className="h-4 w-4" />
+                        Server Files Paketleri
+                    </Link>
+                    <Link
+                        href="/admin/hakkimizda"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+                    >
+                        <FileText className="h-4 w-4" />
+                        Hakkımızda
+                    </Link>
+                    <Link
+                        href="/admin/yasal-sayfalar"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+                    >
+                        <Scale className="h-4 w-4" />
+                        Yasal Sayfalar
                     </Link>
                 </nav>
 

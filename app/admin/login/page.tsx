@@ -1,13 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, Loader2 } from "lucide-react"
+import { Shield, Loader2, Lock, Mail, XCircle, CheckCircle2 } from "lucide-react"
+import { checkRateLimit, isValidEmail, sanitizeInput } from "@/lib/auth"
+import { logFailedLogin, getFailedLoginCount } from "@/lib/logger"
 
 export default function AdminLoginPage() {
     const router = useRouter()
@@ -15,76 +17,251 @@ export default function AdminLoginPage() {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [showPassword, setShowPassword] = useState(false)
+    const [attempts, setAttempts] = useState(0)
+    const [isBlocked, setIsBlocked] = useState(false)
+
+    useEffect(() => {
+        // Rate limiting kontrolü
+        const identifier = `login_${email || 'unknown'}`
+        if (!checkRateLimit(identifier, 5, 300000)) { // 5 deneme, 5 dakika
+            setIsBlocked(true)
+            setError("Çok fazla deneme yapıldı. Lütfen 5 dakika sonra tekrar deneyin.")
+        } else {
+            setIsBlocked(false)
+        }
+    }, [attempts, email])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        if (isBlocked) {
+            setError("Çok fazla deneme yapıldı. Lütfen 5 dakika sonra tekrar deneyin.")
+            return
+        }
+
         setLoading(true)
         setError(null)
 
         try {
+            // Input validation
+            const sanitizedEmail = sanitizeInput(email)
+            if (!isValidEmail(sanitizedEmail)) {
+                setError("Geçerli bir email adresi girin.")
+                setLoading(false)
+                return
+            }
+
+            // Admin email kontrolü
+            const allowedAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+            if (allowedAdminEmail && sanitizedEmail.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
+                setAttempts(prev => prev + 1)
+                // Failed login logla
+                logFailedLogin(sanitizedEmail, undefined, navigator.userAgent, 'Unauthorized email')
+                setError("Bu email adresi ile giriş yapılamaz.")
+                setLoading(false)
+                return
+            }
+
+            // Rate limiting kontrolü - failed login sayısına göre
+            const failedCount = getFailedLoginCount(sanitizedEmail, 5)
+            if (failedCount >= 5) {
+                setError("Çok fazla başarısız deneme. Lütfen 5 dakika sonra tekrar deneyin.")
+                setLoading(false)
+                return
+            }
+
             const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
+                email: sanitizedEmail,
+                password: password, // Şifre sanitize edilmez, Supabase hash'ler
             })
 
-            if (error) throw error
+            if (error) {
+                setAttempts(prev => prev + 1)
+                // Failed login logla
+                logFailedLogin(sanitizedEmail, undefined, navigator.userAgent, error.message)
+                
+                // Debug için console'a yazdır
+                console.error('Supabase login error:', {
+                    message: error.message,
+                    status: error.status,
+                    name: error.name
+                })
+                
+                // Daha anlaşılır hata mesajları
+                let errorMessage = "Giriş yapılırken bir hata oluştu."
+                
+                if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid credentials')) {
+                    errorMessage = "Email veya şifre hatalı. Lütfen Supabase Dashboard'da kullanıcının doğru oluşturulduğundan ve şifrenin doğru olduğundan emin olun."
+                } else if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
+                    errorMessage = "Email adresiniz doğrulanmamış. Supabase Dashboard > Users > Kullanıcıyı düzenleyin ve 'Confirm email' butonuna tıklayın."
+                } else if (error.message.includes('User not found')) {
+                    errorMessage = "Bu email adresi ile kayıtlı kullanıcı bulunamadı. Supabase Dashboard > Authentication > Users'dan kullanıcıyı oluşturun."
+                } else if (error.message.includes('Too many requests')) {
+                    errorMessage = "Çok fazla deneme yapıldı. Lütfen birkaç dakika sonra tekrar deneyin."
+                } else {
+                    errorMessage = `${error.message || errorMessage} (Hata kodu: ${error.status || 'N/A'})`
+                }
+                
+                setError(errorMessage)
+                setLoading(false)
+                return
+            }
 
-            router.push("/admin/sistemler")
+            // Giriş başarılı olduktan sonra email kontrolü tekrar yap
+            if (data.user?.email) {
+                if (allowedAdminEmail && data.user.email.toLowerCase() !== allowedAdminEmail.toLowerCase()) {
+                    await supabase.auth.signOut()
+                    setError("Bu email adresi ile giriş yapılamaz.")
+                    setLoading(false)
+                    return
+                }
+            }
+
+            router.push("/admin/server-files-packages")
             router.refresh()
         } catch (err: any) {
-            setError(err.message || "Giriş yapılırken bir hata oluştu.")
+            // Bu catch bloğu artık sadece beklenmeyen hatalar için
+            console.error('Unexpected login error:', err)
+            setError(err.message || "Giriş yapılırken beklenmeyen bir hata oluştu.")
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black/90">
-            <div className="w-full max-w-md p-8 bg-card border border-white/10 rounded-2xl shadow-xl space-y-6">
-                <div className="flex flex-col items-center gap-2 text-center">
-                    <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                        <Shield className="h-6 w-6" />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-black relative overflow-hidden">
+            {/* Animated Background Elements */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+            </div>
+
+            {/* Grid Pattern Overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+            <div className="relative w-full max-w-md mx-4">
+                {/* Login Card */}
+                <div className="glass-card p-8 md:p-10 rounded-3xl border-white/10 shadow-2xl backdrop-blur-xl bg-zinc-900/80 space-y-8 relative overflow-hidden">
+                    {/* Top Gradient Line */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+
+                    {/* Header */}
+                    <div className="flex flex-col items-center gap-4 text-center">
+                        <div className="relative">
+                            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg shadow-primary/50">
+                                <Shield className="h-8 w-8" strokeWidth={2.5} />
+                            </div>
+                            <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-500 border-2 border-zinc-900 flex items-center justify-center">
+                                <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 mb-2">
+                                Admin Girişi
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Güvenli admin paneline erişim için giriş yapın
+                            </p>
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold">Admin Girişi</h1>
-                    <p className="text-sm text-muted-foreground">Devam etmek için lütfen giriş yapın.</p>
+
+                    {/* Error Alert */}
+                    {error && (
+                        <Alert variant="destructive" className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
+                            <XCircle className="h-4 w-4" />
+                            <AlertDescription className="text-red-400">{error}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Login Form */}
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        {/* Email Input */}
+                        <div className="space-y-2">
+                            <Label htmlFor="email" className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-primary" />
+                                Email Adresi
+                            </Label>
+                            <div className="relative">
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="admin@msmyazilim.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-4 text-white placeholder:text-white/30"
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="space-y-2">
+                            <Label htmlFor="password" className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-primary" />
+                                Şifre
+                            </Label>
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 h-12 pl-4 pr-12 text-white placeholder:text-white/30"
+                                    disabled={loading}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                                    disabled={loading}
+                                >
+                                    {showPassword ? (
+                                        <Lock className="h-5 w-5" />
+                                    ) : (
+                                        <Lock className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            className="w-full h-12 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white font-semibold shadow-lg shadow-primary/50 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                    Giriş yapılıyor...
+                                </>
+                            ) : (
+                                <>
+                                    <Shield className="h-5 w-5 mr-2" />
+                                    Giriş Yap
+                                </>
+                            )}
+                        </Button>
+                    </form>
+
+                    {/* Footer Info */}
+                    <div className="pt-4 border-t border-white/10">
+                        <p className="text-xs text-center text-white/40">
+                            © {new Date().getFullYear()} MSM Yazılım - Tüm hakları saklıdır
+                        </p>
+                    </div>
                 </div>
 
-                {error && (
-                    <Alert variant="destructive">
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
-
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="admin@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="bg-black/20"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Şifre</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="bg-black/20"
-                        />
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                        Giriş Yap
-                    </Button>
-                </form>
+                {/* Security Badge */}
+                <div className="mt-6 flex items-center justify-center gap-2 text-xs text-white/30">
+                    <Shield className="h-3 w-3" />
+                    <span>Güvenli SSL bağlantısı</span>
+                </div>
             </div>
         </div>
     )

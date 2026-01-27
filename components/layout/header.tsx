@@ -9,11 +9,11 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
     { name: "Ana Sayfa", href: "/" },
-    { name: "Sistemler", href: "/sistemler" },
-    { name: "Server Files", href: "/files" },
+    { name: "Server Files", href: "/serverfiles" },
     { name: "Referanslar", href: "/referanslar" },
     { name: "S.S.S.", href: "/sss" },
     { name: "İletişim", href: "/iletisim" },
+    { name: "Hakkımızda", href: "/hakkimizda" },
 ]
 
 export function Header() {
