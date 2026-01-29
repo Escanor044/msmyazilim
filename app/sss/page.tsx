@@ -11,7 +11,7 @@ const faqCategories = [
     {
         title: "Genel",
         questions: [
-            { q: "Teslimat ne kadar sürer?", a: "Ödeme onaylandıktan sonra ortalama 2-6 saat içinde teslimat yapılır." },
+            { q: "Teslimat ne kadar sürer?", a: "Ödeme onaylandıktan sonra kurulum süreci başlatılır ve genellikle aynı gün içerisinde teslimat gerçekleştirilir. Süre, yoğunluğa göre değişiklik gösterebilir." },
             { q: "İade hakkım var mı?", a: "Dijital ürünlerde (files, lisans) yasal olarak iade hakkı bulunmamaktadır. Ancak teknik bir sorun yaşarsanız çözüm garantisi veriyoruz." },
         ]
     },
@@ -19,14 +19,14 @@ const faqCategories = [
         title: "Teknik & Kurulum",
         questions: [
             { q: "Kurulumu siz mi yapıyorsunuz?", a: "Evet, tüm paketlerimizde ilk kurulum ücretsiz ve anahtar teslimdir." },
-            { q: "Sunucu gereksinimleri nelerdir?", a: "Minimum 4GB RAM, FreeBSD 13 ve SSD disk önerilmektedir." },
-            { q: "Source dosyalarını veriyor musunuz?", a: "Sadece Premium pakette ve Full Source lisansı alındığında verilmektedir. Diğer paketlerde game/db lisanslı olarak teslim edilir." },
+            { q: "Sunucu gereksinimleri nelerdir?", a: "Minimum 32GB RAM, FreeBSD 14+ ve SSD disk önerilmektedir." },
+            { q: "Source dosyalarını veriyor musunuz?", a: "Sadece game/db lisanslı olarak teslim edilir. Açık kaynak kodları paylaşıma kapalıdır." },
         ]
     },
     {
         title: "Ödeme & Güvenlik",
         questions: [
-            { q: "Ödeme yöntemleri neler?", a: "Kredi kartı (PayTR), Havale/EFT ve Kripto para ile ödeme yapabilirsiniz." },
+            { q: "Ödeme yöntemleri neler?", a: "Kredi kartı (PayTR) ve Havale/EFT ile ödeme yapabilirsiniz." },
             { q: "PayTR güvenli mi?", a: "Evet, PayTR BDDK lisanslı bir ödeme kuruluşudur ve 3D Secure ile korunmaktadır." },
             { q: "Fatura kesiyor musunuz?", a: "Evet, tüm işlemleriniz için kurumsal e-fatura kesilmektedir." },
         ]
