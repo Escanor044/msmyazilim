@@ -56,7 +56,7 @@ export function Hero() {
                             </div>
                         </div>
                         <Button size="lg" variant="outline" className="w-full sm:w-auto min-w-[180px] glass" asChild>
-                            <Link href="/files">Paketleri İncele</Link>
+                            <Link href="/serverfiles">Paketleri İncele</Link>
                         </Button>
                     </div>
 
