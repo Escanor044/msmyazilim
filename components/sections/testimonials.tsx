@@ -15,7 +15,7 @@ const testimonials = [
     },
     {
         text: "Daha önce farklı firmalarla çalıştım ama böylesine ilgili bir ekip görmedim. Sorunsuz bir açılış yaptık, teşekkürler MSM.",
-        author: "Caner T.",
+        author: "S. D.",
         role: "Asil2 Kurucusu",
         rating: 5
     },
@@ -27,10 +27,22 @@ const testimonials = [
     },
     {
         text: "Kurulumdan sonra bile sürekli destek aldık. Her sorumuza hızlı dönüş yaptılar, gerçekten işlerini ciddiyetle yapıyorlar.",
-        author: "Caner T.",
+        author: "C. T.",
         role: "ZorMt2 Kurucusu",
         rating: 5
-    }
+    },
+    {
+        text: "Files kalitesi ve sistem stabilitesi harika. Açılıştan beri tek bir ciddi problem yaşamadık, gönül rahatlığıyla öneririm.",
+        author: "H. B.",
+        role: "M2OldStar Kurucusu",
+        rating: 5
+    },
+    {
+        text: "İstediğimiz özel sistemleri birebir uyguladılar. Hem teknik bilgi hem iletişim konusunda çok profesyonel bir ekip.",
+        author: "A. Ö.",
+        role: "Hard2008 Kurucusu",
+        rating: 5
+    },
 ]
 
 export function Testimonials() {
