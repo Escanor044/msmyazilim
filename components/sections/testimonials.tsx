@@ -4,19 +4,31 @@ const testimonials = [
     {
         text: "MSM Yazılım ile çalışmak oyunumuzun kaderini değiştirdi. Files altyapısı çok sağlam ve teknik destek ekibi her an yanımızdaydı.",
         author: "K. Y.",
-        role: "Korkut2 Sahibi",
+        role: "Korkut2 Kurucusu",
         rating: 5
     },
     {
         text: "Sistemlerin kurulumu ve yönetimi inanılmaz kolay. Özel olarak istediklerimizi de kısa sürede entegre ettiler. Kesinlikle tavsiye ederim.",
         author: "E. K.",
-        role: "Miras2008",
+        role: "Miras2008 Kurucusu",
         rating: 5
     },
     {
         text: "Daha önce farklı firmalarla çalıştım ama böylesine ilgili bir ekip görmedim. Sorunsuz bir açılış yaptık, teşekkürler MSM.",
         author: "Caner T.",
         role: "Asil2 Kurucusu",
+        rating: 5
+    },
+    {
+        text: "MSM Yazılım sayesinde sunucumuzu çok kısa sürede yayına aldık. Optimizasyonlar mükemmel, performans beklentimizin üstünde.",
+        author: "B. Z.",
+        role: "M2OldSchool Kurucusu",
+        rating: 5
+    },
+    {
+        text: "Kurulumdan sonra bile sürekli destek aldık. Her sorumuza hızlı dönüş yaptılar, gerçekten işlerini ciddiyetle yapıyorlar.",
+        author: "Caner T.",
+        role: "ZorMt2 Kurucusu",
         rating: 5
     }
 ]
