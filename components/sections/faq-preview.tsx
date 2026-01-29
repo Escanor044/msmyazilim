@@ -9,20 +9,32 @@ import { Button } from "@/components/ui/button"
 
 const faqs = [
     {
+        question: "Lisans işlemi nasıl oluyor?",
+        answer: "Test sunucusu ile birlikte açılışta kullanacağınız ana makina IP adresinize lisans tanımlanır."
+    },
+    {
+        question: "Lisans süresi ne kadar?",
+        answer: "Teslim aldığınız pakete göre lisans süresi değişiklik gösterebilir. Lisans haklarınız paket koşulları kapsamında geçerlidir ve talep etmeniz halinde yenileme yapılabilir."
+    },
+    {
+        question: "Sınırsız lisans mevcut mu?",
+        answer: "Evet, ULTIMATE pakete özel olarak sınırsız lisans hakkı sunulmaktadır. Bu pakette standart yenileme ücreti uygulanmaz."
+    },
+    {
+        question: "Lisans yenileme politikası nasıl işliyor?",
+        answer: "ULTIMATE paket haricindeki paketlerde, farklı bir isimle yeni sunucu açmak istemeniz durumunda güncel paket fiyatının %35’i oranında lisans yenileme bedeli uygulanır."
+    },
+    {
         question: "Server Files ne zaman teslim edilir?",
-        answer: "Ödeme onaylandıktan sonra ortalama 2-6 saat içerisinde kurulum tamamlanır ve teslimat yapılır."
+        answer: "Ödeme onaylandıktan sonra kurulum süreci başlatılır ve genellikle aynı gün içerisinde teslimat gerçekleştirilir. Süre, yoğunluğa göre değişiklik gösterebilir."
     },
     {
         question: "Kurulum ücretli mi?",
-        answer: "Hayır, tüm paketlerimizde ilk kurulum tamamen ücretsizdir. Anahtar teslim olarak sunulur."
+        answer: "Hayır, tüm paketlerimizde ilk kurulum ücretsizdir ve sistem anahtar teslim şekilde sunulur."
     },
     {
-        question: "Teknik destek süreci nasıl işliyor?",
-        answer: "Paket türüne göre 1-3 ay arası ücretsiz teknik destek sağlıyoruz. Destek taleplerinizi panel üzerinden veya Discord kanalımızdan iletebilirsiniz."
-    },
-    {
-        question: "PayTR ile taksitli ödeme yapabilir miyim?",
-        answer: "Evet, PayTR altyapısı sayesinde tüm kredi kartlarına 12 taksite varan vade seçenekleriyle ödeme yapabilirsiniz."
+        question: "Taksitli ödeme yapabilir miyim?",
+        answer: "Evet, tüm kredi kartlarına 12 taksite varan vade seçenekleriyle ödeme yapabilirsiniz."
     },
 ]
 
