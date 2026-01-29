@@ -2,21 +2,21 @@ import { Star } from "lucide-react"
 
 const testimonials = [
     {
-        text: "MSM Yazılım ile çalışmak oyunumuzun kaderini değiştirdi. Files altyapısı çok sağlam ve teknik destek ekibi her an yanımızda.",
-        author: "Ahmet Y.",
-        role: "Astra2 Sahibi",
+        text: "MSM Yazılım ile çalışmak oyunumuzun kaderini değiştirdi. Files altyapısı çok sağlam ve teknik destek ekibi her an yanımızdaydı.",
+        author: "K. Y.",
+        role: "Korkut2 Sahibi",
         rating: 5
     },
     {
         text: "Sistemlerin kurulumu ve yönetimi inanılmaz kolay. Özel olarak istediklerimizi de kısa sürede entegre ettiler. Kesinlikle tavsiye ederim.",
-        author: "Mehmet K.",
-        role: "LivaMt2 Yöneticisi",
+        author: "E. K.",
+        role: "Miras2008",
         rating: 5
     },
     {
         text: "Daha önce farklı firmalarla çalıştım ama böylesine ilgili bir ekip görmedim. Sorunsuz bir açılış yaptık, teşekkürler MSM.",
         author: "Caner T.",
-        role: "Rohan2 Kurucusu",
+        role: "Asil2 Kurucusu",
         rating: 5
     }
 ]
