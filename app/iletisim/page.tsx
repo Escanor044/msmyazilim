@@ -91,7 +91,7 @@ export default function ContactPage() {
                                         placeholder="Mesajınızı buraya yazın..."
                                     />
                                 </div>
-                                <Button className="w-full" size="lg">Gönder</Button>
+                                <Button className="w-full opacity-50 cursor-not-allowed" size="lg" disabled> Gönder </Button>
                             </form>
                         </div>
                     </div>
