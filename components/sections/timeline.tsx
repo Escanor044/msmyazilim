@@ -4,12 +4,12 @@ const steps = [
     {
         icon: ShoppingCart,
         title: "1. Paket Seçimi",
-        description: "İhtiyacınıza uygun server files paketini veya sistemi seçin."
+        description: "İhtiyacınıza uygun server files paketini ve sistemleri seçin."
     },
     {
         icon: Crown,
         title: "2. Güvenli Ödeme",
-        description: "PayTR altyapısı ile kredi kartı veya havale ile güvenli ödeme yapın."
+        description: "Faturalı şekilde hizmetinizi teslim alın."
     },
     {
         icon: Rocket,
