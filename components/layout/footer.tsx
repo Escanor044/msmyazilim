@@ -52,7 +52,7 @@ export function Footer() {
                                 </div>
                                 <div>
                                     <div className="text-xs text-muted-foreground/60">E-Posta</div>
-                                    <a href="mailto:destek@msmyazilim.com" className="hover:text-white">destek@msmyazilim.com</a>
+                                    <a href="mailto:destek@msmyazilim.com" className="hover:text-white">msmyazilim1@gmail.com</a>
                                 </div>
                             </li>
                             <li className="flex items-center gap-3">
